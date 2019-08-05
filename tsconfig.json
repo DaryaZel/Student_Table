@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+      "outDir": "./public/",
+      "watch": false
+    },
+"files": [
+    "src/model.ts"
+]
+}
