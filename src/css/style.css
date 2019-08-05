@@ -1,0 +1,90 @@
+.my-col{
+    padding:0px;
+    
+}
+.my-input{
+  border-radius: 0%
+}
+th.sorted.ascending:after {
+	content: "  \2191";
+}
+
+th.sorted.descending:after {
+	content: " \2193";
+}
+
+.threeFirst{
+  color:red;
+  border: 1px solid blue;
+}
+.link{
+  color:blue
+}
+
+  .toggle-btn {
+    position:relative;
+    width:100px;
+    height:60px;
+    background:gray;
+    border-radius:30px;
+    padding:5px;
+    transition:all 300ms ease-in-out;
+  }
+  
+  .inner-circle {
+      text-align: center;
+    position:absolute;
+    width:50px;
+    height:50px;
+    background:#fff;
+    border-radius:50%;
+    transition:all 300ms ease-in-out;
+  }
+  .toggle-btn.active-green {
+     background:green;
+  }
+  .toggle-btn.active-red {
+    background:red;
+ }
+ .toggle-btn.active-blue {
+    background:blue;
+ }
+ .toggle-btn.active-green > .inner-circle{
+     margin-left:40px; 
+  }
+  .toggle-btn.active-red > .inner-circle{
+    margin-left:40px; 
+ }
+ .toggle-btn.active-blue > .inner-circle{
+    margin-left:40px; 
+ }
+ .green{
+     background: green
+ }
+ .red{
+    background: red
+}
+.blue{
+    background: blue
+}
+
+  .tooltip {
+    position: fixed;
+    padding: 10px 20px;
+    border: 1px solid #b3c9ce;
+    border-radius: 4px;
+    text-align: center;
+    font: italic 14px/1.3 sans-serif;
+    color: #333;
+    background: #fff;
+    box-shadow: 3px 3px 3px rgba(0, 0, 0, .3);
+    opacity: 1
+  }
+  .table-bordered {
+  border:none;
+}
+.deadline{
+  color: red
+
+}
+

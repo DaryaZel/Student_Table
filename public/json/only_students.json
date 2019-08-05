@@ -1,0 +1,14 @@
+{
+  "students": [
+    { "id": "1", "name": "Ivan","skype":"idivan" },
+    { "id": "2", "name": "Max","skype":"idmax"  },
+    { "id": "3", "name": "Andrey","skype":"idandrey"  },
+    { "id": "4", "name": "Sergey","skype":"idsergey"  },
+    { "id": "5", "name": "Alex","skype":"idalex" },
+    { "id": "6", "name": "Vladimir","skype":"idvladimir" }
+  ],
+  "lectures": [
+    {"lecture": "Lecture №1", "homework": "Homework №1","lectureurl":"https://github.com/paawel/training/blob/master/fd2_pvt/01/00.md","homeworkurl":"https://github.com/paawel/training/blob/master/fd2_pvt/01/homework/hw.md"},
+    {"lecture": "Lecture №2", "homework": "Homework №2","lectureurl":"https://github.com/paawel/training/blob/master/fd2_pvt/02/00.md","homeworkurl":"https://github.com/paawel/training/blob/master/fd2_pvt/02/homework/hw.md"}
+  ]
+}
