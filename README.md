@@ -1,4 +1,5 @@
-# npm run init
-# npm run build
-# open with http://127.0.0.1:5500/public/index.html
-# npm run cypress for testing
+# Student_Table
+1. npm run init
+2. npm run build
+3. open with http://127.0.0.1:5500/public/index.html
+4. npm run cypress for testing
