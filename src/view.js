@@ -41,7 +41,7 @@ class View extends EventEmitter {
   show(items) {
     let allScoreElements = document.getElementsByClassName("allscore")
     if (localStorage.getItem('session') == null) {
-      $.getJSON('public/json/only_students.json', function (data) {
+      $.getJSON('./json/only_students.json', function (data) {
         localStorage.setItem('session', JSON.stringify(data));
 
       })
