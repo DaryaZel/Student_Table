@@ -8,7 +8,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'public'),
     filename: 'js/app.js',
-    publicPath: '/public'
+    publicPath: '..'
   },
 
   devServer: {
