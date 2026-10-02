@@ -74,13 +74,24 @@ class Model extends EventEmitter {
     return this.items;
   }
 
-  saveScore(id: string, score: Score, deadlines: string[]) {
+  saveScore(id: string, values: string[], deadlines: string[]) {
+    const score: Score = { ...values, allscore: String(values.reduce((sum, value) => sum + +value, 0)) };
     deadlines.forEach((deadline, i) => {
       this.items.lectures[i].deadline = deadline;
     });
     this.items[id] = score;
     this.emit('change', this.items);
     return score;
+  }
+
+  // Ids of up to three students with the highest non-zero total score.
+  topThree(): string[] {
+    return this.items.students
+      .map(student => ({ id: student.id, total: +(this.getScore(student.id) || { allscore: 0 }).allscore }))
+      .filter(student => student.total > 0)
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 3)
+      .map(student => student.id);
   }
 
   updateDeadline(index: number, deadline: string) {

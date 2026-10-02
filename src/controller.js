@@ -11,12 +11,17 @@ class Controller {
     view.on('saveScore', this.saveScore.bind(this));
     view.on('updateDeadline', this.updateDeadline.bind(this));
     view.on('addLecture', this.addLecture.bind(this));
-    view.show(model.items);
+    this.render();
+  }
+
+  render() {
+    this.view.show(this.model.items);
+    this.view.highlightTopThree(this.model.topThree());
   }
 
   addStudent(name, skype) {
     this.model.addStudent(name, skype);
-    this.view.show(this.model.items);
+    this.render();
   }
 
   updateStudent(id, field, value) {
@@ -29,8 +34,8 @@ class Controller {
   }
 
   deleteStudent(id) {
-    const items = this.model.deleteStudent(id);
-    this.view.show(items);
+    this.model.deleteStudent(id);
+    this.render();
   }
 
   openScore(id) {
@@ -39,10 +44,11 @@ class Controller {
     this.view.showScore(this.model.items.lectures, score, student.name);
   }
 
-  saveScore(id, score, deadlines) {
-    this.model.saveScore(id, score, deadlines);
+  saveScore(id, values, deadlines) {
+    const score = this.model.saveScore(id, values, deadlines);
     this.view.closeScoreDialog();
     this.view.setTotalScore(id, score.allscore);
+    this.view.highlightTopThree(this.model.topThree());
   }
 
   updateDeadline(index, deadline) {
@@ -52,7 +58,7 @@ class Controller {
   addLecture(id) {
     const lectures = this.model.addLecture();
     const student = this.model.getStudent(id);
-    this.view.showScore(lectures, this.view.currentScore(), student.name);
+    this.view.showScore(lectures, this.view.scoreValues(), student.name);
   }
 }
 

@@ -54,13 +54,11 @@ class View extends EventEmitter {
         this.setTotalScore(id, items[id].allscore);
       }
     })
-    this.firstThreePlaces();
   }
 
   setTotalScore(id, total) {
     document.getElementById(id + '_score').value = total
     document.getElementById(id + '_score_td').dataset.sortValue = total
-    this.firstThreePlaces();
   }
 
   setTeam(id, team) {
@@ -125,17 +123,10 @@ class View extends EventEmitter {
     button.classList.toggle('active-' + team)
   }
 
-  firstThreePlaces() {
-    const allScore = Array.from(this.allScoreElements);
-    allScore.forEach(element => element.classList.remove('threeFirst'));
-    allScore
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 3)
-      .forEach(element => {
-        if (element.value > 0) {
-          element.classList.add('threeFirst')
-        }
-      });
+  highlightTopThree(ids) {
+    Array.from(this.allScoreElements).forEach(element => {
+      element.classList.toggle('threeFirst', ids.includes(element.dataset.id))
+    });
   }
 
   handleAddName(event) {
@@ -168,22 +159,15 @@ class View extends EventEmitter {
     }
   }
 
-  currentScore() {
-    const score = {}
-    let total = 0
-    Array.from(this.scoreElements).forEach((element, i) => {
-      score[i] = element.value
-      total += +element.value
-    })
-    score.allscore = String(total)
-    return score
+  scoreValues() {
+    return Array.from(this.scoreElements).map(element => element.value)
   }
 
   handleLecturesClick(e) {
     switch (e.target.id) {
       case 'btnSaveScore': {
         const deadlines = Array.from(this.deadlineElements).map(element => element.value)
-        this.emit('saveScore', this.scoreID, this.currentScore(), deadlines);
+        this.emit('saveScore', this.scoreID, this.scoreValues(), deadlines);
         break;
       }
       case 'btnCancelScore':
