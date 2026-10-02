@@ -1,97 +1,112 @@
 import { EventEmitter } from './helpers';
+
+interface Student {
+  id: string;
+  name: string;
+  skype: string;
+  team?: string;
+}
+
+interface Lecture {
+  lecture: string;
+  homework: string;
+  lectureurl?: string;
+  homeworkurl?: string;
+  deadline?: string;
+}
+
+interface Score {
+  allscore: string;
+  [index: number]: string;
+}
+
+// Scores are stored next to students/lectures, keyed by student id.
+interface State {
+  students: Student[];
+  lectures: Lecture[];
+  [studentId: string]: any;
+}
+
 class Model extends EventEmitter {
-  items: any;
+  items: State;
   emit: any;
-  students: Array<any>
-  constructor(items = []) {
+
+  constructor(items: State) {
     super();
     this.items = items;
   }
 
-  getScore(scoreid: number) {
-
-    let score = this.items[scoreid]
-    return score
+  getScore(id: string): Score {
+    return this.items[id];
   }
-  getName(scoreid) {
 
-    let name
-    this.items.students.forEach(item => {
-      if (item.id == scoreid) {
-        name = item.name
-      }
-    })
-    return name
+  getStudent(id: string): Student {
+    return this.items.students.find(student => student.id == id);
   }
-  chageLocalStorage(firstvalue: string, defaultvalue: string) {
-    this.items.students.forEach(item => {
-      if (item.name == defaultvalue) {
-        item.name = firstvalue
-      }
-      else if (item.skype == defaultvalue) {
-        item.skype = firstvalue
-      }
-    })
 
+  addStudent(name: string, skype: string) {
+    const lastId = Math.max(0, ...this.items.students.map(student => +student.id));
+    const student = { id: String(lastId + 1), name, skype };
+    this.items.students.push(student);
     this.emit('change', this.items);
-    return this.items;
-
+    return student;
   }
 
-  chageLectureLocalStorage(firstvalue: string, homeworkvalue: string) {
-
-    this.items.lectures.forEach(item => {
-
-      if ("" + item.homework + "  " == homeworkvalue) {
-        item.deadline = firstvalue
-      }
-    })
-    this.emit('change', this.items);
-    return this.items;
-  }
-  chageTeamLocalStorage(value: string, color: string) {
-
-    this.items.students.forEach(item => {
-      if (item.name == value && item.team == color) {
-        item.team = " "
-      }
-      else if (item.name == value) {
-        item.team = color
-      }
-    })
-    this.emit('change', this.items);
-    return this.items;
-  }
-  addNameItem(item) {
-    ;
-    this.items.students.push(item);
-    this.emit('change', this.items);
-    return this.items;
-  }
-  addScoreItem(studentScore: number, scoreID: number, deadlines: string) {
-    for (let i = 0; i < deadlines.length; i++) {
-      this.items.lectures[i].deadline = deadlines[i]
+  updateStudent(id: string, field: string, value: string) {
+    const student = this.getStudent(id);
+    if (student && (field == 'name' || field == 'skype')) {
+      student[field] = value;
+      this.emit('change', this.items);
     }
-    this.items.lectures
-    this.items[scoreID] = studentScore;
+  }
+
+  toggleTeam(id: string, color: string) {
+    const student = this.getStudent(id);
+    student.team = student.team == color ? '' : color;
+    this.emit('change', this.items);
+    return student.team;
+  }
+
+  deleteStudent(id: string) {
+    this.items.students = this.items.students.filter(student => student.id != id);
+    delete this.items[id];
     this.emit('change', this.items);
     return this.items;
   }
-  addLectureItem(studentLecture: string) {
-    ;
-    this.items.lectures.push(studentLecture);
+
+  saveScore(id: string, values: string[], deadlines: string[]) {
+    const score: Score = { ...values, allscore: String(values.reduce((sum, value) => sum + +value, 0)) };
+    deadlines.forEach((deadline, i) => {
+      this.items.lectures[i].deadline = deadline;
+    });
+    this.items[id] = score;
     this.emit('change', this.items);
-    return this.items;
+    return score;
   }
-  deleteItem(scoreid) {
-    ;
-    this.items.students.forEach(function (item: any, index: any, object: any[]) {
-      if (item.id == scoreid) {
-        object.splice(index, 1);
-      }
-    })
+
+  // Ids of up to three students with the highest non-zero total score.
+  topThree(): string[] {
+    return this.items.students
+      .map(student => ({ id: student.id, total: +(this.getScore(student.id) || { allscore: 0 }).allscore }))
+      .filter(student => student.total > 0)
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 3)
+      .map(student => student.id);
+  }
+
+  updateDeadline(index: number, deadline: string) {
+    this.items.lectures[index].deadline = deadline;
     this.emit('change', this.items);
-    return this.items;
+  }
+
+  addLecture() {
+    const number = this.items.lectures.length + 1;
+    this.items.lectures.push({
+      lecture: 'Lecture №' + number,
+      homework: 'Homework №' + number
+    });
+    this.emit('change', this.items);
+    return this.items.lectures;
   }
 }
 

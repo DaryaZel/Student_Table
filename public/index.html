@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 
 <head>
   <meta charset="UTF-8">
@@ -19,20 +19,20 @@
             </button>
           </th>
           <th class="col my-col no-sort">
-            <div id="greenbutton" class="toggle-btn"
-              data-tooltip="Press on the button<br>and on a student name to add a student to the GREANteam">
+            <div id="greenbutton" class="toggle-btn" data-team="green"
+              data-tooltip="Press on the button<br>and on a student name to add a student to the GREEN team">
               <div class="inner-circle">Green Team</div>
             </div>
           </th>
           <th class="col my-col no-sort">
-            <div id="redbutton" class="toggle-btn"
-              data-tooltip="Press on the button<br>and on a student name to add a student to the READteam">
+            <div id="redbutton" class="toggle-btn" data-team="red"
+              data-tooltip="Press on the button<br>and on a student name to add a student to the RED team">
               <div class="inner-circle">Red Team</div>
             </div>
           </th>
           <th class="col my-col no-sort">
-            <div id="bluebutton" class="toggle-btn"
-              data-tooltip="Press on the button<br>and on a student name to add a student to the BLUEteam">
+            <div id="bluebutton" class="toggle-btn" data-team="blue"
+              data-tooltip="Press on the button<br>and on a student name to add a student to the BLUE team">
               <div class="inner-circle">Blue Team</div>
             </div>
           </th>
@@ -64,24 +64,24 @@
                 <td class="col my-col" data-sort-value="{{id}}">
                       <input class="idName form-control my-input" type="text" value="{{id}}" data-index-number="0" disabled >
                 </td>
-                  <td class="{{team}} col my-col" data-sort-value="{{name}}">
-                    <input class="studentname form-control my-input" type="text" value="{{name}}" data-index-number="1">
+                  <td id="{{id}}_name_td" class="{{team}} col my-col" data-sort-value="{{name}}">
+                    <input class="studentname form-control my-input" type="text" value="{{name}}" data-index-number="1" data-id="{{id}}" data-field="name">
                   </td>
                 <td class="col my-col" data-sort-value="{{skype}}">
-                  <input class="form-control my-input" type="text" value="{{skype}}" data-index-number="2">
+                  <input class="form-control my-input" type="text" value="{{skype}}" data-index-number="2" data-id="{{id}}" data-field="skype">
                 </td>
                 <td id="{{id}}_score_td" class="col my-col" data-sort-value="0">
-                <input id="{{id}}_score"class="form-control my-input allscore" type="text" value="0"  data-index-number="3">
+                <input id="{{id}}_score" class="form-control my-input allscore" type="text" value="0" data-index-number="3" data-id="{{id}}" readonly>
                 
               </td>
-              <th class="col my-col">
-                <button id={{id}} class="changeScore">
+              <td class="col my-col">
+                <button class="changeScore" data-id="{{id}}">
                   Change Score
-              </button>
-              <button id={{id}}_delete class="deleteItem">
-               X
-            </button>
-            </th>
+                </button>
+                <button class="deleteItem" data-id="{{id}}">
+                  X
+                </button>
+              </td>
           </tr>
           {{/students}}
       </script>
@@ -93,11 +93,11 @@
     <form>
       <div class="form-group">
         <label for="Name">Name</label>
-        <input id="Name" type="text" class="form-control" id="Name">
+        <input id="Name" type="text" class="form-control">
       </div>
       <div class="form-group">
         <label for="SkypeId">Skype ID</label>
-        <input id="SkypeId" type="text" class="form-control" id="PlaceOfBirth" />
+        <input id="SkypeId" type="text" class="form-control" />
       </div>
       <button type="button" id="btnSave" class="btn btn-default">Save</button>
       <button type="button" id="btnCancel" class="btn btn-default btnCancel">Cancel</button>
@@ -108,28 +108,27 @@
       <script id="lectures_tpl" type="text/template">
           {{#lectures}}
         <div class="form-group" >
-          <a class="link" href="{{lectureurl}}"target="_blank" link="blue">
-              <label for="lecture" >{{lecture}}</label>
+          <a class="link" href="{{lectureurl}}" target="_blank">
+              <label>{{lecture}}</label>
           </a>
-          <input class="score" type="text" class="form-control" value="0"  >
+          <input class="score form-control" type="text" value="0">
         </div>
         <div class="form-group">
          <a class="link" href="{{homeworkurl}}" target="_blank">
-            <label for="homework">{{homework}}</label>
+            <label>{{homework}}</label>
           </a>
-          <input class="score" type="text" class="form-control" value="0"  >
-          <input type="text" class='deadline' placeholder="Add Deadline" value="{{deadline}}"   >
+          <input class="score form-control" type="text" value="0">
+          <input type="text" class="deadline" placeholder="Add Deadline" value="{{deadline}}">
         </div>
         {{/lectures}}
       
         <button type="button" id="btnSaveScore" class="btn btn-default">Save</button>
         <button type="button" id="btnCancelScore" class="btn btn-default btnCancel">Cancel</button>
         <button type="button" id="btnAddLecture" class="btn btn-default">Add +</button>
-      
-      </form>
+      </script>
+    </form>
     
     </div>
-      <script src="./libs/bootstrap.min.js"></script>
       <script src="./js/app.js"></script>
 </body>
 

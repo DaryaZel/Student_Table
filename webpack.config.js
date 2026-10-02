@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
-module.exports = {
+module.exports = (env, argv) => ({
   entry: ['./src/index'],
 
   output: {
@@ -25,18 +25,15 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: 'css/main.css'
     })
-
   ],
   module: {
     rules: [
       {
-
         test: /\.css$/,
         use: [
           MiniCssExtractPlugin.loader,
           'css-loader'
-        ],
-
+        ]
       },
       {
         test: /\.(jpe?g|png|gif)$/i,
@@ -47,27 +44,22 @@ module.exports = {
         }
       },
       {
-        test: /\.html$/,
-        loader: 'mustache-loader'
-      },
-      {
         test: /\.js$/,
         exclude: /node_modules/,
         loader: 'babel-loader',
-        query: {
+        options: {
           presets: ['@babel/preset-env']
         }
       },
       {
-        test: /\.ts?$/,
+        test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/
       }
-
     ]
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
   },
-  devtool: 'cheap-eval-source-map'
-};
+  devtool: argv.mode === 'production' ? false : 'cheap-module-eval-source-map'
+});
