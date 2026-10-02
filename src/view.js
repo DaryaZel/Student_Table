@@ -1,63 +1,36 @@
+import Mustache from 'mustache';
 import { EventEmitter } from './helpers';
+
+const ENTER = 13;
+
 class View extends EventEmitter {
   constructor() {
     super();
-    this.showingTooltip
-    this.scoreID
+    this.showingTooltip = null;
+    this.scoreID = null;
     this.allScoreElements = document.getElementsByClassName("allscore")
-    this.idElements = document.getElementsByClassName("idName")
-    this.rowElements = document.getElementsByClassName("row")
-    this.container = document.getElementById("container")
-    this.lectures = document.getElementById("lectures")
-    this.linkElements = document.getElementsByClassName("link")
     this.scoreElements = document.getElementsByClassName("score")
     this.deadlineElements = document.getElementsByClassName("deadline")
-    this.teamButton = document.getElementsByClassName("toggle-btn")
-    this.saveName = document.getElementById('btnSave')
-    this.saveScore = document.getElementById('btnSaveScore')
+    this.teamButtons = document.getElementsByClassName("toggle-btn")
     this.inputName = document.getElementById('Name')
     this.inputSkypeId = document.getElementById('SkypeId')
+    this.students_tpl = $('#students_tpl').html();
+    this.lectures_tpl = $('#lectures_tpl').html();
+
     $('#tablehead').on('mouseover', this.message.bind(this));
     $('#tablehead').on('mouseout', this.messageOut.bind(this));
     $('#tablehead').on('click', this.toggleTeamButton.bind(this));
     $('#btnSave').on('click', this.handleAddName.bind(this));
-    $('#lectures').on('click', this.handleAddScore.bind(this));
-    $('#lectures').on('click', this.handleAddLecture.bind(this));
-    $('#lectures').on('keyup', this.onlyNumber.bind(this));
     $('#for_students').on('keypress', this.keypressTable.bind(this));
-    $('#for_students').on('click', this.showLectureScoreAndDelte.bind(this));
+    $('#for_students').on('click', this.handleTableClick.bind(this));
     $('#dialog').on('keypress', this.keypressNameEnter.bind(this));
-    $('#dialog').on('keyup', this.noEmtySpace.bind(this));
+    $('#dialog').on('keyup', this.noLeadingSpace.bind(this));
+    $('#lectures').on('click', this.handleLecturesClick.bind(this));
+    $('#lectures').on('keyup', this.onlyNumber.bind(this));
     $('#lectures').on('keypress', this.keypressLectures.bind(this));
     $("#btnStudentName").on('click', this.openNameDialog.bind(this));
     $("#btnCancel").on('click', this.closeDialog.bind(this));
-    $("#btnCancelScore").on('click', this.closeScoreDialog.bind(this));
-    this.students_tpl = $('#students_tpl').html();
-    this.lectures_tpl = $('#lectures_tpl').html();
 
-
-
-  }
-  show(items) {
-    let allScoreElements = document.getElementsByClassName("allscore")
-    if (localStorage.getItem('session') == null) {
-      $.getJSON('./json/only_students.json', function (data) {
-        localStorage.setItem('session', JSON.stringify(data));
-
-      })
-    }
-    $('#for_students').html(Mustache.render(this.students_tpl, items));
-
-    allScoreElements = Array.prototype.slice.call(allScoreElements);
-    allScoreElements.forEach(elem => {
-      let id = +elem.id.replace('_score', '')
-      if (items[id]) {
-
-        document.getElementById('' + id + '_score').value = items[id].allscore
-        document.getElementById('' + id + '_score_td').dataset.sortValue = items[id].allscore;
-      }
-    })
-    $("#dialog").dialog().dialog("close");
     $("#dialog").dialog({
       autoOpen: false,
       modal: true,
@@ -69,13 +42,35 @@ class View extends EventEmitter {
       modal: true,
       resizable: false
     });
-    this.tableSorting()
-    this.firstThreePlaces();
+    $('#dtBasicExample').tablesort();
+  }
 
+  show(items) {
+    $('#for_students').html(Mustache.render(this.students_tpl, items));
+
+    Array.from(this.allScoreElements).forEach(elem => {
+      const id = elem.dataset.id;
+      if (items[id]) {
+        this.setTotalScore(id, items[id].allscore);
+      }
+    })
+    this.firstThreePlaces();
   }
-  tableSorting() {
-    $('#dtBasicExample').tablesort()
+
+  setTotalScore(id, total) {
+    document.getElementById(id + '_score').value = total
+    document.getElementById(id + '_score_td').dataset.sortValue = total
+    this.firstThreePlaces();
   }
+
+  setTeam(id, team) {
+    const cell = document.getElementById(id + '_name_td')
+    cell.classList.remove('green', 'red', 'blue')
+    if (team) {
+      cell.classList.add(team)
+    }
+  }
+
   message(e) {
     let target = e.target;
 
@@ -102,243 +97,185 @@ class View extends EventEmitter {
 
       this.showingTooltip = tooltipElem;
     }
+  }
 
-  };
-  messageOut(e) {
+  messageOut() {
     if (this.showingTooltip) {
       document.body.removeChild(this.showingTooltip);
       this.showingTooltip = null;
     }
   }
-  toggleTeamButton(e) {
-    if (e.target.id == "greenbutton" && $(e.target).parent().next().children().attr('class') == "toggle-btn" && $(e.target).parent().next().next().children().attr('class') == "toggle-btn") {
-      e.target.classList.toggle('active-green')
-    }
-    else if (e.target.parentElement.id == "greenbutton" && $(e.target).parent().parent().next().children().attr('class') == "toggle-btn" && $(e.target).parent().parent().next().next().children().attr('class') == "toggle-btn") {
-      e.target.parentElement.classList.toggle('active-green')
 
-    }
-    else if (e.target.id == "redbutton" && $(e.target).parent().prev().children().attr('class') == "toggle-btn" && $(e.target).parent().next().children().attr('class') == "toggle-btn") {
-      e.target.classList.toggle('active-red')
-    }
-    else if (e.target.parentElement.id == "redbutton" && $(e.target).parent().parent().prev().children().attr('class') == "toggle-btn" && $(e.target).parent().parent().next().children().attr('class') == "toggle-btn") {
-      e.target.parentElement.classList.toggle('active-red')
-
-    }
-    else if (e.target.id == "bluebutton" && $(e.target).parent().prev().children().attr('class') == "toggle-btn" && $(e.target).parent().prev().prev().children().attr('class') == "toggle-btn") {
-      e.target.classList.toggle('active-blue')
-    }
-    else if (e.target.parentElement.id == "bluebutton" && $(e.target).parent().parent().prev().children().attr('class') == "toggle-btn" && $(e.target).parent().parent().prev().prev().children().attr('class') == "toggle-btn") {
-      e.target.parentElement.classList.toggle('active-blue')
-
-    }
-    else {
-      if (e.target.id == "bluebutton" || e.target.id == "redbutton" || e.target.id == "greanbutton") {
-        alert('Press only one team')
-      }
-    }
+  activeTeam() {
+    const active = Array.from(this.teamButtons)
+      .find(button => button.classList.contains('active-' + button.dataset.team));
+    return active ? active.dataset.team : null;
   }
+
+  toggleTeamButton(e) {
+    const button = e.target.closest('.toggle-btn');
+    if (!button) return;
+
+    const team = button.dataset.team;
+    const activeTeam = this.activeTeam();
+    if (activeTeam && activeTeam != team) {
+      alert('Press only one team')
+      return;
+    }
+    button.classList.toggle('active-' + team)
+  }
+
   firstThreePlaces() {
-
-    let allScore = this.allScoreElements
-    allScore = Array.prototype.slice.call(allScore);
-    allScore.forEach(element => {
-      element.classList.remove('threeFirst')
-    });
-    allScore.sort(function (a, b) {
-      return b.value - a.value;
-    });
-    allScore.length = 3
-    allScore.forEach(element => {
-      if (element.value > 0) {
-        element.classList.add('threeFirst')
-      }
-    });
-
+    const allScore = Array.from(this.allScoreElements);
+    allScore.forEach(element => element.classList.remove('threeFirst'));
+    allScore
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 3)
+      .forEach(element => {
+        if (element.value > 0) {
+          element.classList.add('threeFirst')
+        }
+      });
   }
 
   handleAddName(event) {
-    ;
     event.preventDefault();
-    const inputNameValue = this.inputName.value;
-    const inputSkypeIdValue = this.inputSkypeId.value;
-    let lastId = this.idElements[this.idElements.length - 1];
-    let lastIdValue = +lastId.value + 1;
-    if (!inputNameValue) {
+    const name = this.inputName.value.trim();
+    const skype = this.inputSkypeId.value.trim();
+    if (!name) {
       alert("Enter Name!");
+      return;
     }
-    else if (!inputSkypeIdValue) {
+    if (!skype) {
       alert("Enter Skype Id!");
-    } else {
-      this.emit('addName', lastIdValue, inputNameValue, inputSkypeIdValue);
+      return;
     }
+    this.emit('addStudent', name, skype);
+    this.inputName.value = '';
+    this.inputSkypeId.value = '';
     this.closeDialog()
   }
+
   onlyNumber(e) {
-    let inputScore = e.target.value;
-    if (isNaN(parseFloat(inputScore)) && !isFinite(inputScore)) {
-      e.target.value = inputScore.substring(0, inputScore.length - 1)
+    if (e.target.classList.contains('score')) {
+      e.target.value = e.target.value.replace(/[^\d.]/g, '')
     }
   }
-  noEmtySpace(e) {
-    let inputScore = e.target.value;
-    if (inputScore == " ") {
-      e.target.value = inputScore.substring(0, inputScore.length - 1)
 
+  noLeadingSpace(e) {
+    if (e.target.value.startsWith(' ')) {
+      e.target.value = e.target.value.trimStart()
     }
   }
-  handleAddScore(e) {
-    let score = 0
-    let studentScore = {}
-    let deadlines = []
-    let array = []
-    for (let i = 0; i < this.scoreElements.length; i++) {
-      let inputScore = +this.scoreElements[i].value
-      score += inputScore
-      studentScore.allscore = '' + score + ''
-      studentScore[i] = this.scoreElements[i].value
-      array.push(studentScore)
 
-    }
-    for (let i = 0; i < this.deadlineElements.length; i++) {
-      let deadline = this.deadlineElements[i].value
-      deadlines.push(deadline)
-
-    }
-    if (e.target == document.getElementById("btnSaveScore")) {
-      this.emit('chageItem', studentScore, this.scoreID, deadlines);
-    }
-    else if (e.target == document.getElementById("btnCancelScore")) {
-      return this.closeScoreDialog()
-    }
+  currentScore() {
+    const score = {}
+    let total = 0
+    Array.from(this.scoreElements).forEach((element, i) => {
+      score[i] = element.value
+      total += +element.value
+    })
+    score.allscore = String(total)
+    return score
   }
-  handleAddLecture(e) {
 
-    if (e.target == document.getElementById("btnAddLecture")) {
-      let studentLecture = {}
-      let array = []
-      let number = +(this.scoreElements.length / 2) + 1
-      let lecture = 'Lecture №' + number + ''
-      let homework = 'Homework №' + number + ''
-      studentLecture.lecture = lecture
-      studentLecture.homework = homework
-      array.push(studentLecture)
-      this.emit('addLecture', studentLecture, this.scoreID);
-    }
-  }
-  showAllScore(score) {
-
-    $("#lectures").dialog("close");
-    document.getElementById('' + this.scoreID + '_score').value = String(score['' + this.scoreID + ''].allscore)
-    document.getElementById('' + this.scoreID + '_score_td').dataset.sortValue = String(score['' + this.scoreID + ''].allscore)
-    this.firstThreePlaces();
-  }
-  keypressTable(event) {
-
-    let index = event.target.dataset.indexNumber;
-    if (event.keyCode == 13) {
-      $(event.target).parent().parent().next().find('.my-input ').eq(+index).focus();
-      event.preventDefault();
-      if (event.target.defaultValue !== event.target.value) {
-        this.emit('changeItemAfterEnter', event.target.value, event.target.defaultValue);
-
+  handleLecturesClick(e) {
+    switch (e.target.id) {
+      case 'btnSaveScore': {
+        const deadlines = Array.from(this.deadlineElements).map(element => element.value)
+        this.emit('saveScore', this.scoreID, this.currentScore(), deadlines);
+        break;
       }
+      case 'btnCancelScore':
+        this.closeScoreDialog();
+        break;
+      case 'btnAddLecture':
+        this.emit('addLecture', this.scoreID);
+        break;
+    }
+  }
+
+  keypressTable(event) {
+    if (event.keyCode != ENTER) return;
+
+    const input = event.target;
+    const index = input.dataset.indexNumber;
+    $(input).parent().parent().next().find('.my-input').eq(+index).focus();
+    event.preventDefault();
+    if (input.dataset.field && input.defaultValue !== input.value) {
+      this.emit('updateStudent', input.dataset.id, input.dataset.field, input.value);
+      input.defaultValue = input.value;
     }
   }
 
   keypressNameEnter(event) {
-
-    if (event.keyCode == 13) {
+    if (event.keyCode == ENTER) {
       $(event.target).parent().next().find('#SkypeId').focus();
       event.preventDefault();
     }
   }
+
   keypressLectures(event) {
+    if (event.keyCode != ENTER) return;
 
-    if (event.keyCode == 13 && event.target.classList != "deadline") {
-      $(event.target).parent().next().find('.score').focus();
-      event.preventDefault();
+    const input = event.target;
+    event.preventDefault();
+    if (!input.classList.contains('deadline')) {
+      $(input).parent().next().find('.score').focus();
+      return;
     }
-    else if (event.keyCode == 13) {
-      $(event.target).parent().next().next().find('.deadline').focus();
-      if (event.target.defaultValue !== event.target.value) {
-        this.emit('changeDeadlineAfterEnter', event.target.value, event.target.parentElement.outerText);
-      }
-
+    $(input).parent().next().next().find('.deadline').focus();
+    if (input.defaultValue !== input.value) {
+      const index = Array.from(this.deadlineElements).indexOf(input);
+      this.emit('updateDeadline', index, input.value);
+      input.defaultValue = input.value;
     }
   }
 
   openNameDialog() {
     $("#dialog").dialog("open");
   }
+
   closeDialog() {
     $("#dialog").dialog("close");
   }
+
   closeScoreDialog() {
     $("#lectures").dialog("close");
   }
-  showLectureScoreAndDelte(e) {
 
-    if (e.target.className == 'changeScore') {
+  handleTableClick(e) {
+    const target = e.target;
+    const id = target.dataset.id;
 
-      this.scoreID = e.target.id
-      this.emit('getSavedScore', this.scoreID);
+    if (target.classList.contains('changeScore')) {
+      this.scoreID = id
+      this.emit('openScore', id);
     }
-    else if (e.target.className == 'deleteItem') {
-
-      this.scoreID = e.target.previousElementSibling.id
-      this.emit('getItemAfterDelete', this.scoreID);
-
+    else if (target.classList.contains('deleteItem')) {
+      this.emit('deleteStudent', id);
     }
-    else if (e.target.className == 'studentname form-control my-input') {
-
-      for (let i = 0; i < this.teamButton.length; i++) {
-        if (this.teamButton[i].className == "toggle-btn active-green") {
-
-          e.target.parentElement.classList.toggle('green')
-          this.emit('changeTeamColor', event.target.value, 'green');
-        }
-        else if (this.teamButton[i].className == "toggle-btn active-red") {
-
-          e.target.parentElement.classList.toggle('red')
-          this.emit('changeTeamColor', event.target.value, 'red');
-        }
-        else if (this.teamButton[i].className == "toggle-btn active-blue") {
-
-          e.target.parentElement.classList.toggle('blue')
-          this.emit('changeTeamColor', event.target.value, 'blue');
-        }
+    else if (target.classList.contains('studentname')) {
+      const team = this.activeTeam();
+      if (team) {
+        this.emit('toggleTeam', id, team);
       }
     }
-
-
   }
-  showScore(items, score, name) {
-    $("#lectures").dialog("open").dialog({
-      title: '' + name + ' Score'
-    })
-    $('#lecturesMustache').html(Mustache.render(this.lectures_tpl, items));
 
-    let alllinks = this.linkElements
-    alllinks = Array.prototype.slice.call(alllinks);
-    alllinks.forEach(element => {
-      if (element.href !== 'http://127.0.0.1:5500/index.html') {
-        element.children[0].classList.add('link')
+  showScore(lectures, score, name) {
+    $("#lectures").dialog("option", "title", name + ' Score').dialog("open")
+    $('#lecturesMustache').html(Mustache.render(this.lectures_tpl, { lectures }));
+
+    $('#lecturesMustache a.link').each((i, link) => {
+      if (link.getAttribute('href')) {
+        link.children[0].classList.add('link')
       }
     });
-    for (let i = 0; i < this.scoreElements.length; i++) {
-      if (score && score[i]) {
-
-        this.scoreElements[i].value = score[i]
-      }
-      else {
-
-        this.scoreElements[i].value = "0"
-      }
-
-    }
+    Array.from(this.scoreElements).forEach((element, i) => {
+      element.value = score && score[i] ? score[i] : "0"
+    })
   }
-
 }
 
 export default View;

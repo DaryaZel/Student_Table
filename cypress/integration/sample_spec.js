@@ -25,7 +25,7 @@ context('Actions', () => {
 })
 
 describe("Background Color test", () => {
-  it('Blue background of active bluebutton', () => {
+  it('Green background of active greenbutton', () => {
     cy.get('.active-green')
       .should('have.css', 'background-color')
       .and('eq', 'rgb(0, 128, 0)')
@@ -39,7 +39,7 @@ describe("Background Color test", () => {
       .and('eq', 'rgb(255, 0, 0)')
 
   })
-  it('Red background of active redbutton', () => {
+  it('Blue background of active bluebutton', () => {
     cy.get('#redbutton').click()
     cy.get('#bluebutton').click()
     cy.get('.active-blue')
